@@ -36,18 +36,12 @@ inputSubmit.addEventListener("click", (e) => {
 
     const modal = document.querySelector(".modal")
 
-
-    const words = modal.querySelector("textarea").value.split(/\s+/g)
-
     const elem = {
         id: mistakes.length+1,
         mistake: modal.querySelector("textarea").value,
         answer: inputAnswer.value,
         comment: inputComment.value,
     }
-
-
-
 
     p.innerHTML = p.innerHTML.replace(
         modal.querySelector("textarea").value,
@@ -57,7 +51,6 @@ inputSubmit.addEventListener("click", (e) => {
                                 ${modal.querySelector("textarea").value}
                             </div>
                             <div class="answer">
-                          
                                 ${inputAnswer.value}
                             </div>
                             <div class="comment">
@@ -72,6 +65,7 @@ inputSubmit.addEventListener("click", (e) => {
     )
     mistakes.push(elem)
     acceptClick(mistakes)
+    dismissClick(mistakes)
 })
 
 
@@ -92,13 +86,35 @@ function acceptClick(mistakes) {
             pChecked.forEach(check => {
                 const checkId = check.getAttribute("data-id")
                 if (checkId === id) {
-                    // p.innerHTML =
+                    check.parentNode.replaceChild(elem, check)
                 }
             })
         })
     })
 }
 
+function dismissClick(mistakes) {
+    const buttons = document.querySelectorAll(".dismiss")
+
+    const pChecked = p.querySelectorAll(".checked")
+    buttons.forEach(item => {
+        item.addEventListener("click", () => {
+            const id = item.getAttribute("data-id")
+
+            const filteredMistake = mistakes.filter(mis => mis.id === +id)
+
+            const elem = document.createElement("span")
+            elem.innerHTML = filteredMistake[0].mistake
+
+            pChecked.forEach(check => {
+                const checkId = check.getAttribute("data-id")
+                if (checkId === id) {
+                    check.parentNode.replaceChild(elem, check)
+                }
+            })
+        })
+    })
+}
 
 
 // function createWords(text) {
