@@ -1,0 +1,139 @@
+@import "../style"
+
+.writingInside
+  width: 100%
+  height: 100%
+  padding: 30px
+  display: flex
+  justify-content: center
+  &__container
+    width: 45%
+    margin: 0 10px
+    .title
+      font-size: 20px
+      font-weight: 400
+      text-align: center
+      margin-bottom: 15px
+    .desc
+      padding: 20px
+      border: 2px solid black
+      .checked
+        display: inline-block
+        text-decoration: underline
+        position: relative
+        &:hover
+          &>div
+            visibility: visible
+            opacity: 1
+
+        &> div
+          position: absolute
+          top: 100%
+          min-width: 300px
+          min-height: 100px
+          box-shadow: 0 0 15px 1px #868686
+          opacity: 0
+          visibility: hidden
+          background-color: white
+          border-radius: 15px
+          padding: 10px
+          transition: all .6s
+          display: flex
+          flex-direction: column
+          .mistake
+            margin-bottom: 20px
+            color: #e50000
+          .answer
+            color: #04bb04
+          .comment
+            margin-top: 20px
+          .btns
+            display: flex
+            align-items: center
+            justify-content: center
+            gap: 10px
+            margin-top: 20px
+            &__item
+              padding: 7px 10px
+              border-radius: 10px
+              display: flex
+              align-items: center
+              justify-content: center
+              border: 1px solid #737373
+              cursor: pointer
+              transition: all .2s
+              user-select: none
+              &:active
+                transform: scale(0.9)
+              &:hover
+                background-color: #737373
+                color: white
+
+
+
+  .modal
+    width: 100%
+    height: 100vh
+    position: fixed
+    top: 0
+    background-color: rgba(0, 0, 0, 0.56)
+    opacity: 0
+    visibility: hidden
+    transition: all .6s
+    display: flex
+    align-items: center
+    justify-content: center
+    &.active
+      opacity: 1
+      visibility: visible
+    &__content
+      width: 500px
+      height: 500px
+      background-color: white
+      padding: 20px
+      display: flex
+      flex-direction: column
+      overflow: auto
+      &::-webkit-scrollbar
+        width: 10px
+      &::-webkit-scrollbar-track
+        box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3)
+      &::-webkit-scrollbar-thumb
+        background-color: #6c6c6c
+        outline: 1px solid slategrey
+      textarea
+        resize: none
+        width: 100%
+        height: 200px
+        padding: 20px
+      label
+        margin: 10px 0
+        width: 100%
+        display: flex
+        flex-direction: column
+        justify-content: flex-start
+        span
+          font-size: 18px
+          margin-bottom: 10px
+        input,select
+          height: 45px
+        option
+          min-height: 30px
+        input
+          padding: 10px
+      .submit-container
+        margin-top: 25px
+        width: 100%
+        display: flex
+        align-items: center
+        justify-content: center
+        input
+          padding: 15px 30px
+          border: 1px solid black
+          background-color: white
+          cursor: pointer
+          &:hover
+            background-color: #9a9a9a
+            border: 1px solid #9a9a9a
+            color: white
+

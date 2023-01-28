@@ -9,17 +9,95 @@ function getSelectionText() {
 }
 const p = document.querySelector(".desc")
 
+
 p.addEventListener('contextmenu', (event) => {
     event.preventDefault()
     activeMenu()
+
     const modal = document.querySelector(".modal")
 
-    modal.querySelector("textarea").value = getSelectionText()
+    modal.querySelector("textarea").innerHTML = getSelectionText()
+})
 
+
+const inputSubmit = document.querySelector("#input-submit"),
+    inputAnswer = document.querySelector("#input-answer"),
+    inputComment = document.querySelector("#input-comment")
+
+
+
+const mistakes = [
+
+]
+
+
+inputSubmit.addEventListener("click", (e) => {
+    e.preventDefault()
+
+    const modal = document.querySelector(".modal")
+
+
+    const words = modal.querySelector("textarea").value.split(/\s+/g)
+
+    const elem = {
+        id: mistakes.length+1,
+        mistake: modal.querySelector("textarea").value,
+        answer: inputAnswer.value,
+        comment: inputComment.value,
+    }
+
+
+
+
+    p.innerHTML = p.innerHTML.replace(
+        modal.querySelector("textarea").value,
+        `<div class="checked" data-id=${mistakes.length+1}>${modal.querySelector("textarea").value}
+                        <div>
+                            <div class="mistake">
+                                ${modal.querySelector("textarea").value}
+                            </div>
+                            <div class="answer">
+                          
+                                ${inputAnswer.value}
+                            </div>
+                            <div class="comment">
+                                 ${inputComment.value}
+                            </div>
+                            <div class="btns">
+                                <div class="btns__item accept" data-id=${mistakes.length+1}>accept</div>
+                                <div class="btns__item dismiss" data-id=${mistakes.length+1}>dismiss</div>
+                            </div>
+                        </div>
+                    </div>`
+    )
+    mistakes.push(elem)
+    acceptClick(mistakes)
 })
 
 
 
+function acceptClick(mistakes) {
+    const buttons = document.querySelectorAll(".accept")
+
+    const pChecked = p.querySelectorAll(".checked")
+    buttons.forEach(item => {
+        item.addEventListener("click", () => {
+            const id = item.getAttribute("data-id")
+
+            const filteredMistake = mistakes.filter(mis => mis.id === +id)
+
+            const elem = document.createElement("span")
+            elem.innerHTML = filteredMistake[0].answer
+
+            pChecked.forEach(check => {
+                const checkId = check.getAttribute("data-id")
+                if (checkId === id) {
+                    // p.innerHTML =
+                }
+            })
+        })
+    })
+}
 
 
 
@@ -53,16 +131,21 @@ p.addEventListener('contextmenu', (event) => {
 //         return !!str.includes(specialChar);
 //     });
 // }
-//
+
 function activeMenu() {
     // let e = window.event
     const modal = document.querySelector(".modal")
     modal.classList.add("active")
 }
-function deActiveMenu() {
-    const modal = document.querySelector(".modal")
-    modal.classList.remove("active")
-}
+
+const modal = document.querySelector(".modal")
+
+
+modal.addEventListener("click",(e)=>{
+    if (e.target.classList.contains("modal")) {
+        modal.classList.remove("active")
+    }
+})
 
 
 
