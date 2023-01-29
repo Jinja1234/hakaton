@@ -7,6 +7,7 @@ function getSelectionText() {
     }
     return text;
 }
+
 const p = document.querySelector(".desc")
 
 
@@ -19,17 +20,57 @@ p.addEventListener('contextmenu', (event) => {
     modal.querySelector("textarea").innerHTML = getSelectionText()
 })
 
-
-const inputSubmit = document.querySelector("#input-submit"),
-    inputAnswer = document.querySelector("#input-answer"),
+let mistakes = []
+const inputSubmit = document.querySelector("#input-submit"), inputAnswer = document.querySelector("#input-answer"),
     inputComment = document.querySelector("#input-comment")
 
+const essay_id = inputSubmit.getAttribute("data-essayId")
+
+fetch(`/get_essay_errors/${essay_id}`, {
+    method: 'GET', // *GET, POST, PUT, DELETE, etc.
+
+    headers: {
+        'Content-Type': 'application/json'
+    },
+})
+    .then(res => res.json())
+    .then(res => {
+        console.log(res)
+        mistakes = res.error_list.map((item, index) => {
+            return {...item, id: index + 1}
+        })
+        checkMistake(mistakes)
+    })
 
 
-const mistakes = [
+function checkMistake(mistakes) {
+    const modal = document.querySelector(".modal")
 
-]
+    mistakes.map(item => {
+        p.innerHTML = p.innerHTML.replace(item.mistake, `<div class="checked" data-id=${item.id}>${item.mistake}
+                            <div>
+                                <div class="mistake">
+                                    ${item.mistake}
+                                </div>
+                                <div class="answer">
+                                    ${item.answer}
+                                </div>
+                                <div class="comment">
+                                     ${item.comment}
+                                </div>
+                                <div class="btns">
+                                    <div class="btns__item accept" data-id=${item.id}>accept</div>
+                                    <div class="btns__item dismiss" data-id=${item.id}>dismiss</div>
+                                </div>
+                            </div>
+                        </div>`)
+    })
 
+    acceptClick(mistakes)
+    dismissClick(mistakes)
+
+
+}
 
 inputSubmit.addEventListener("click", (e) => {
     e.preventDefault()
@@ -37,15 +78,14 @@ inputSubmit.addEventListener("click", (e) => {
     const modal = document.querySelector(".modal")
 
     const elem = {
-        id: mistakes.length+1,
+        id: mistakes.length + 1,
         mistake: modal.querySelector("textarea").value,
         answer: inputAnswer.value,
         comment: inputComment.value,
+        mistake_type: modal.querySelector("#select-type").value
     }
 
-    p.innerHTML = p.innerHTML.replace(
-        modal.querySelector("textarea").value,
-        `<div class="checked" data-id=${mistakes.length+1}>${modal.querySelector("textarea").value}
+    p.innerHTML = p.innerHTML.replace(modal.querySelector("textarea").value, `<div class="checked" data-id=${mistakes.length + 1}>${modal.querySelector("textarea").value}
                         <div>
                             <div class="mistake">
                                 ${modal.querySelector("textarea").value}
@@ -57,61 +97,79 @@ inputSubmit.addEventListener("click", (e) => {
                                  ${inputComment.value}
                             </div>
                             <div class="btns">
-                                <div class="btns__item accept" data-id=${mistakes.length+1}>accept</div>
-                                <div class="btns__item dismiss" data-id=${mistakes.length+1}>dismiss</div>
+                                <div class="btns__item accept" data-id=${mistakes.length + 1}>accept</div>
+                                <div class="btns__item dismiss" data-id=${mistakes.length + 1}>dismiss</div>
                             </div>
                         </div>
-                    </div>`
-    )
+                    </div>`)
     mistakes.push(elem)
+
     acceptClick(mistakes)
     dismissClick(mistakes)
+
+
+    fetch("/send_errors/" + essay_id, {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        body: JSON.stringify({
+            "mistake": elem
+        }), headers: {
+            'Content-Type': 'application/json'
+        },
+    })
+
+    modal.classList.remove("active")
+
+
 })
 
 
+function acceptClick(currentMistakes) {
 
-function acceptClick(mistakes) {
     const buttons = document.querySelectorAll(".accept")
-
     const pChecked = p.querySelectorAll(".checked")
     buttons.forEach(item => {
         item.addEventListener("click", () => {
             const id = item.getAttribute("data-id")
+            const filteredMistake = currentMistakes.filter(mis => mis.id === +id)
 
-            const filteredMistake = mistakes.filter(mis => mis.id === +id)
-
-            const elem = document.createElement("span")
-            elem.innerHTML = filteredMistake[0].answer
 
             pChecked.forEach(check => {
                 const checkId = check.getAttribute("data-id")
                 if (checkId === id) {
-                    check.parentNode.replaceChild(elem, check)
+                    p.innerHTML = p.innerHTML.replace(check.outerHTML, filteredMistake[0].answer)
                 }
             })
+
+            mistakes = currentMistakes.filter(miss => miss.id !== +id)
+
+
+            acceptClick(mistakes)
         })
     })
+
+
 }
 
-function dismissClick(mistakes) {
+function dismissClick(currentMistakes) {
     const buttons = document.querySelectorAll(".dismiss")
-
     const pChecked = p.querySelectorAll(".checked")
     buttons.forEach(item => {
         item.addEventListener("click", () => {
             const id = item.getAttribute("data-id")
+            const filteredMistake = currentMistakes.filter(mis => mis.id === +id)
 
-            const filteredMistake = mistakes.filter(mis => mis.id === +id)
-
-            const elem = document.createElement("span")
-            elem.innerHTML = filteredMistake[0].mistake
 
             pChecked.forEach(check => {
                 const checkId = check.getAttribute("data-id")
                 if (checkId === id) {
-                    check.parentNode.replaceChild(elem, check)
+                    p.innerHTML = p.innerHTML.replace(check.outerHTML, filteredMistake[0].mistake)
                 }
             })
+
+            mistakes = currentMistakes.filter(miss => miss.id !== +id)
+
+            dismissClick(mistakes)
+
         })
     })
 }
@@ -157,12 +215,11 @@ function activeMenu() {
 const modal = document.querySelector(".modal")
 
 
-modal.addEventListener("click",(e)=>{
+modal.addEventListener("click", (e) => {
     if (e.target.classList.contains("modal")) {
         modal.classList.remove("active")
     }
 })
-
 
 
 // createWords(text)
